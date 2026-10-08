@@ -1,0 +1,25 @@
+# Arquivos compilados do Java
+*.class
+bin/
+out/
+build/
+target/
+*.jar
+*.war
+*.ear
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Sistema operacional
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs temporários
+*.log
