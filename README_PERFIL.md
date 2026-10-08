@@ -33,10 +33,9 @@
 ---
 
 ### 📌 Projetos em Destaque
-*(Conforme for subindo seus projetos, liste os 2 a 3 principais aqui com link e breve descrição)*
 
-- 🔹 **[Nome do Projeto 1](https://github.com/Gabrila7/link-do-repo)** - Breve descrição do que faz e tecnologias utilizadas.
-- 🔹 **[Nome do Projeto 2](https://github.com/Gabrila7/link-do-repo)** - Breve descrição do que faz e tecnologias utilizadas.
+- 🔹 **[📁 Organizador de Arquivos Desktop (Java Swing)](https://github.com/Gabrila7/organizador-arquivos-java)** - Aplicação desktop desenvolvida em Java para categorização automática e limpeza de diretórios, com interface Swing não-bloqueante e tratamento anti-sobrescrita.
+
 
 ---
 
