@@ -5,34 +5,33 @@ echo    Organizador de Arquivos Desktop - Compilar e Executar
 echo ========================================================
 echo.
 
+set "JAVAC_CMD=javac"
+set "JAVA_CMD=java"
+
 where javac >nul 2>nul
 if %errorlevel% neq 0 (
-    echo [AVISO] O compilador 'javac' não foi encontrado no PATH do sistema.
-    echo.
-    echo Se você usa uma IDE (IntelliJ IDEA, Eclipse, VS Code), abra esta
-    echo pasta diretamente pela IDE e execute a classe 'Main.java'.
-    echo.
-    echo Para instalar o JDK no Windows via terminal, use:
-    echo   winget install EclipseAdoptium.Temurin.17.JDK
-    echo.
-    pause
-    exit /b 1
+    if exist "C:\Program Files\Microsoft\jdk-17.0.20.101-hotspot\bin\javac.exe" (
+        set "JAVAC_CMD=C:\Program Files\Microsoft\jdk-17.0.20.101-hotspot\bin\javac.exe"
+        set "JAVA_CMD=C:\Program Files\Microsoft\jdk-17.0.20.101-hotspot\bin\java.exe"
+    ) else (
+        echo [AVISO] Compilador javac não encontrado no PATH.
+        pause
+        exit /b 1
+    )
 )
 
 echo [1/2] Compilando arquivos Java...
 if not exist "bin" mkdir "bin"
 
-javac -encoding UTF-8 -d bin src\com\gabrila7\fileorganizer\model\*.java src\com\gabrila7\fileorganizer\service\*.java src\com\gabrila7\fileorganizer\ui\*.java src\com\gabrila7\fileorganizer\*.java
+"%JAVAC_CMD%" -encoding UTF-8 -d bin src\com\gabrila7\fileorganizer\model\*.java src\com\gabrila7\fileorganizer\service\*.java src\com\gabrila7\fileorganizer\ui\*.java src\com\gabrila7\fileorganizer\*.java
 
 if %errorlevel% neq 0 (
     echo.
-    echo [ERRO] Falha na compilação. Verifique os erros acima.
+    echo [ERRO] Falha na compilação.
     pause
     exit /b 1
 )
 
-echo [2/2] Executando a aplicação...
+echo [2/2] Executando aplicação...
 echo.
-java -cp bin com.gabrila7.fileorganizer.Main
-
-pause
+"%JAVA_CMD%" -cp bin com.gabrila7.fileorganizer.Main
