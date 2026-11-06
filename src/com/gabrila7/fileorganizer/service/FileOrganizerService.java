@@ -10,12 +10,6 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-/**
- * Serviço responsável por escanear o diretório, categorizar arquivos,
- * tratar colisões de nomes e mover os arquivos de forma segura.
- * 
- * @author Gabriel Vinícius (@Gabrila7)
- */
 public class FileOrganizerService {
 
     private Consumer<String> logListener;
@@ -41,32 +35,21 @@ public class FileOrganizerService {
         }
     }
 
-    /**
-     * Executa a organização de arquivos no diretório fornecido.
-     *
-     * @param targetDirectory Diretório a ser organizado.
-     * @param organizeOthers  Se verdadeiro, arquivos não categorizados vão para "Outros". Se falso, permanecem no lugar.
-     * @param dryRun          Se verdadeiro, apenas simula as movimentações sem alterar nada em disco.
-     * @return Estatísticas completas da execução.
-     * @throws IOException Se houver falha de leitura do diretório.
-     */
     public OrganizationStats organize(Path targetDirectory, boolean organizeOthers, boolean dryRun) throws IOException {
         long startTime = System.currentTimeMillis();
         OrganizationStats stats = new OrganizationStats();
 
         if (targetDirectory == null || !Files.exists(targetDirectory) || !Files.isDirectory(targetDirectory)) {
-            throw new IllegalArgumentException("Diretório inválido ou inexistente: " + targetDirectory);
+            throw new IllegalArgumentException("Diretorio invalido ou inexistente: " + targetDirectory);
         }
 
-        log(String.format("Iniciando organização em: %s %s",
-                targetDirectory.toAbsolutePath(), (dryRun ? "[MODO SIMULAÇÃO]" : "")));
+        log(String.format("Organizando pasta: %s %s",
+                targetDirectory.toAbsolutePath(), (dryRun ? "[SIMULACAO]" : "")));
 
-        // 1. Listar apenas arquivos regulares diretamente na raiz da pasta selecionada
         List<Path> filesToProcess = new ArrayList<>();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(targetDirectory)) {
             for (Path entry : stream) {
                 if (Files.isRegularFile(entry)) {
-                    // Ignora arquivos ocultos ou de sistema temporários
                     if (Files.isHidden(entry) || entry.getFileName().toString().startsWith(".")) {
                         stats.incrementIgnored();
                         continue;
@@ -77,17 +60,16 @@ public class FileOrganizerService {
         }
 
         stats.setTotalFilesFound(filesToProcess.size());
-        log(String.format("Arquivos detectados para análise: %d", filesToProcess.size()));
+        log(String.format("Arquivos encontrados na raiz: %d", filesToProcess.size()));
 
         if (filesToProcess.isEmpty()) {
-            log("Nenhum arquivo elegível encontrado para organização.");
+            log("Nenhum arquivo solto para organizar.");
             stats.setExecutionTimeMillis(System.currentTimeMillis() - startTime);
             return stats;
         }
 
         int processedCount = 0;
 
-        // 2. Processar cada arquivo
         for (Path file : filesToProcess) {
             processedCount++;
             updateProgress(processedCount, filesToProcess.size());
@@ -96,10 +78,9 @@ public class FileOrganizerService {
             String extension = extractExtension(fileName);
             FileCategory category = FileCategory.fromExtension(extension);
 
-            // Se for categoria OUTROS e o usuário optou por não mover arquivos desconhecidos
             if (category == FileCategory.OUTROS && !organizeOthers) {
                 stats.incrementIgnored();
-                log(String.format("Mantido na raiz (não categorizado): %s", fileName));
+                log(String.format("Ignorado (sem categoria): %s", fileName));
                 continue;
             }
 
@@ -111,7 +92,6 @@ public class FileOrganizerService {
                     Files.createDirectories(destinationFolder);
                 }
 
-                // Tratar colisão de nomes para evitar sobrescrita acidental
                 Path destinationFile = resolveUniqueDestination(destinationFolder, fileName);
 
                 if (!dryRun) {
@@ -119,24 +99,21 @@ public class FileOrganizerService {
                 }
 
                 stats.incrementMoved(category, fileSize);
-                log(String.format("%s %s ➜ %s/%s",
-                        category.getIcon(), fileName, category.getFolderName(), destinationFile.getFileName()));
+                log(String.format("[OK] %s -> %s/%s",
+                        fileName, category.getFolderName(), destinationFile.getFileName()));
 
             } catch (Exception e) {
                 stats.incrementError();
-                log(String.format("❌ Erro ao mover '%s': %s", fileName, e.getMessage()));
+                log(String.format("[ERRO] Falha ao mover '%s': %s", fileName, e.getMessage()));
             }
         }
 
         stats.setExecutionTimeMillis(System.currentTimeMillis() - startTime);
-        log(dryRun ? "Simulação concluída com sucesso!" : "Organização concluída com sucesso!");
+        log(dryRun ? "Simulacao finalizada." : "Organizacao finalizada.");
 
         return stats;
     }
 
-    /**
-     * Extrai a extensão de um arquivo sem o ponto.
-     */
     public static String extractExtension(String fileName) {
         if (fileName == null) return "";
         int lastDotIndex = fileName.lastIndexOf('.');
@@ -146,9 +123,6 @@ public class FileOrganizerService {
         return "";
     }
 
-    /**
-     * Resolve conflito de nomes adicionando um sufixo numérico (ex: arquivo (1).pdf) caso o destino já exista.
-     */
     private Path resolveUniqueDestination(Path folder, String originalName) {
         Path target = folder.resolve(originalName);
         if (!Files.exists(target)) {

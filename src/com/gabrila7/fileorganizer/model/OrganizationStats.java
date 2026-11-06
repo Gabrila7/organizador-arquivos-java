@@ -4,11 +4,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
-/**
- * Armazena e formata as métricas e estatísticas do processo de organização.
- * 
- * @author Gabriel Vinícius (@Gabrila7)
- */
 public class OrganizationStats {
 
     private int totalFilesFound = 0;
@@ -76,9 +71,6 @@ public class OrganizationStats {
         return Collections.unmodifiableMap(categoryCounts);
     }
 
-    /**
-     * Converte o tamanho em bytes para representação legível (KB, MB, GB).
-     */
     public String getFormattedSize() {
         if (totalBytesProcessed < 1024) {
             return totalBytesProcessed + " B";
@@ -88,26 +80,23 @@ public class OrganizationStats {
         return String.format("%.2f %sB", totalBytesProcessed / Math.pow(1024, exp), pre);
     }
 
-    /**
-     * Retorna um resumo formatado para exibição.
-     */
     public String generateSummary() {
         StringBuilder sb = new StringBuilder();
-        sb.append("=== Resumo da Organização ===\n");
-        sb.append(String.format("• Arquivos organizados: %d de %d\n", filesMoved, totalFilesFound));
-        sb.append(String.format("• Volume total movido: %s\n", getFormattedSize()));
-        sb.append(String.format("• Tempo de execução: %.2f segundos\n", executionTimeMillis / 1000.0));
+        sb.append("--- Resumo da Organizacao ---\n");
+        sb.append(String.format("Arquivos movidos: %d de %d\n", filesMoved, totalFilesFound));
+        sb.append(String.format("Volume processado: %s\n", getFormattedSize()));
+        sb.append(String.format("Tempo total: %.2f s\n", executionTimeMillis / 1000.0));
         if (filesIgnored > 0) {
-            sb.append(String.format("• Arquivos ignorados (ocultos/pastas): %d\n", filesIgnored));
+            sb.append(String.format("Ignorados: %d\n", filesIgnored));
         }
         if (errorsCount > 0) {
-            sb.append(String.format("• Erros encontrados: %d\n", errorsCount));
+            sb.append(String.format("Erros: %d\n", errorsCount));
         }
-        sb.append("\nDivisão por categoria:\n");
+        sb.append("\nPor categoria:\n");
         for (Map.Entry<FileCategory, Integer> entry : categoryCounts.entrySet()) {
             if (entry.getValue() > 0) {
-                sb.append(String.format("  %s %s: %d arquivo(s)\n",
-                        entry.getKey().getIcon(), entry.getKey().getFolderName(), entry.getValue()));
+                sb.append(String.format(" - %s: %d arquivo(s)\n",
+                        entry.getKey().getFolderName(), entry.getValue()));
             }
         }
         return sb.toString();
